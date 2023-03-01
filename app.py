@@ -1,5 +1,5 @@
 import threading
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from job import run, clear_trigger_condition, add_compare_data, get_diff_info
 
 
@@ -24,7 +24,13 @@ def create_app():
             "info": info
         })
 
-    threading.Thread(target=run).start()
+    @app.route("/")
+    def index():
+        print("ffff")
+        return render_template('index.html')
+
+    
+    # threading.Thread(target=run).start()
     
     return app
 
