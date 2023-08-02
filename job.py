@@ -4,7 +4,7 @@ import schedule
 import time
 import datetime
 from functools import partial
-from collections import namedtuple, defaultdict
+from collections import namedtuple, defaultdict, OrderedDict
 from chinese_calendar import is_workday
 from utils import find_index
 from mail_tools import send_mail
@@ -28,7 +28,7 @@ def up_down_percent_n_from_cost(current_info, compare_data, diff_percent):
         )
 
 
-StockCompareItem = namedtuple("StockCompareItem", "code cost_price amount cur_amount")
+StockCompareItem = namedtuple("StockCompareItem", "code cost_price current_price amount")
 StockTodayInfo = namedtuple(
     "StockTodayInfo",
     "code cur_price up_down_price up_down_price_percent highest_price lowest_price open_price",
@@ -38,9 +38,11 @@ StockTodayInfo = namedtuple(
 condition_trigger_record = defaultdict(dict)
 
 stock_compare_data = [
-    StockCompareItem("600673", 9.0, 20000, 16116), # 东阳光
-    StockCompareItem("002823", 9.6, 9050, 6288), # 凯中精密
-    StockCompareItem("510300", 3.921, 11766, 12615) # 沪深ETF
+    StockCompareItem("600673", 9.0, None, 3100), # 东阳光
+    StockCompareItem("512170", 0.456, None, 9120), # 医疗ETF
+    StockCompareItem("512880", 0.899, None, 0), # 证券ETF
+    StockCompareItem("002823", 9.6, None, 0), # 凯中精密
+    StockCompareItem("510300", 3.921, None,0) # 沪深ETF
 ]
 
 
@@ -113,12 +115,12 @@ def add_compare_data(data):
     index = find_index(stock_compare_data, lambda x: x.code == data["code"])
     if index != -1:
         stock_compare_data[index] = StockCompareItem(
-            data["code"], float(data["cost_price"]), float(data["amount"])
+            data["code"], float(data["cost_price"]), None, float(data["amount"])
         )
     else:
         stock_compare_data.append(
             StockCompareItem(
-                data["code"], float(data["cost_price"]), float(data["amount"])
+                data["code"], float(data["cost_price"]), None, float(data["amount"])
             )
         )
 
@@ -126,6 +128,11 @@ def add_compare_data(data):
 def job():
     if not is_workday(datetime.date.today()):
         return
+    do_job_impl()
+
+
+def do_job_impl():
+    print("do job")
     for data in stock_compare_data:
         info = get_stock_info(data.code)
         for condition, func in condition_config.items():
@@ -136,26 +143,46 @@ def job():
                 send_mail(["350821495@qq.com"], mail_info, mail_info)
 
 
-def get_diff_info():
+def get_diff_info(include_all=True):
     collected_info = []
-    for data in stock_compare_data:
+    if(include_all == False):
+        filtered_stock_compare_data = (data for data in stock_compare_data if data.amount > 0)
+    else:
+        filtered_stock_compare_data = stock_compare_data
+    for data in filtered_stock_compare_data:
         info = get_stock_info(data.code)
         diff_price = info.cur_price - data.cost_price 
         diff_percent = (diff_price / data.cost_price) * 100
         diff_percent_str = str(round(diff_percent, 2)) + "%"
-        collected_info.append({
+        collected_info.append(OrderedDict({
             "code": data.code,
             "percent": diff_percent_str,
+            "cost_price": data.cost_price,
+            "current_price": info.cur_price,
             "amount": data.amount,
-            "cur_amount": data.cur_amount,
-            "cost_price": data.cost_price
-        })
+            "original_money": float(data.amount) * float(data.cost_price),
+            "current_money": float(data.amount) * float(info.cur_price)
+        }))
     return collected_info
+
+def send_running_mail():
+    if not is_workday(datetime.date.today()):
+        return
+    send_mail(["350821495@qq.com"], "Monitor is running", "Monitor is running")
+
+def conclude_stat():
+    if not is_workday(datetime.date.today()):
+        return
+    info = get_diff_info()
+    send_mail(["350821495@qq.com"], "Conclude", json.dumps(info))
+
 
 
 def run():
     schedule.every(10).seconds.do(job)
+    schedule.every().day.at("09:25").do(send_running_mail)
     schedule.every().day.at("09:30").do(clear_trigger_condition)
+    schedule.every().day.at("15:00").do(conclude_stat)
 
     while True:
         schedule.run_pending()

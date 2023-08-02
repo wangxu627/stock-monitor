@@ -29,15 +29,13 @@ def create_app():
         print("ffff")
         return render_template('index.html')
 
-    
-    # threading.Thread(target=run).start()
+    threading.Thread(target=run).start()
     
     return app
 
 
 if __name__ == '__main__':
     create_app().run()
-    
-    
+
 # cd /home/rabbitlbj/workfolder/stock-monitor ; /usr/bin/env /home/rabbitlbj/workfolder/stock-monitor/venv/bin/python /home/rabbitlbj/.vscode-server/extensions/ms-python.python-2022.17.13051012/pythonFiles/lib/python/debugpy/adapter/../../debugpy/launcher 42105 -- -m flask run --no-debugger --no-reload 
 # cd /home/rabbitlbj/workfolder/stock-monitor ; /usr/bin/env /bin/python /home/rabbitlbj/.vscode-server/extensions/ms-python.python-2022.17.13051012/pythonFiles/lib/python/debugpy/adapter/../../debugpy/launcher 40061 -- -m flask run --no-debugger --no-reload 
