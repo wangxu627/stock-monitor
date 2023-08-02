@@ -20,8 +20,7 @@ jobs:
       run: echo "::set-output name=date::$(date +'%Y-%m-%d--%M-%S')"
     - name: Set Docker builder driver
       run: |
-        docker buildx create --platform linux/amd64
-        docker buildx create --platform linux/arm64,linux/arm/v8
+        docker buildx use $(docker buildx create --platform linux/amd64,linux/arm64,linux/arm/v8)
     - name: Build the Docker image # push The image to the docker hub
       run: docker build . --platform linux/amd64,linux/arm64,linux/arm/v8 --file Dockerfile --tag $DOCKER_USER/$REPO_NAME:${{ steps.date.outputs.date }}
     - name: Docker Push
