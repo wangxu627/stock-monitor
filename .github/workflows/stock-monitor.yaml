@@ -22,8 +22,7 @@ jobs:
       run: |
         docker buildx use $(docker buildx create --platform linux/amd64,linux/arm64,linux/arm/v8)
     - name: Build the Docker image # push The image to the docker hub
-      run: docker buildx build . --platform linux/amd64,linux/arm64,linux/arm/v8 --file Dockerfile --tag $DOCKER_USER/$REPO_NAME:${{ steps.date.outputs.date }}
-    - name: Docker Push
-      run: docker push $DOCKER_USER/$REPO_NAME:${{ steps.date.outputs.date }}
+      run: docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v8 --file Dockerfile --tag $DOCKER_USER/$REPO_NAME:${{ steps.date.outputs.date }} --push .
+ 
       
 
