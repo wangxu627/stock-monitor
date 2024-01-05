@@ -1,0 +1,39 @@
+ * Serving Flask app 'app.py'
+ * Debug mode: on
+[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.11.30:5000
+[33mPress CTRL+C to quit[0m
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 142-042-613
+211.137.109.14 - - [05/Jan/2024 11:00:32] "GET /get-info HTTP/1.1" 200 -
+ * Detected change in '/home/rabbitlbj/workfolder/stock-monitor/job.py', reloading
+do job
+Trigger :  601838 up_percent_1
+Send notification :  Stock Notify:601838   up_percent_1 Stock Notify:601838   up_percent_1
+ERROR :  ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 142-042-613
+ * Detected change in '/home/rabbitlbj/workfolder/stock-monitor/job.py', reloading
+do job
+Trigger :  601838 up_percent_1
+Send notification :  Stock Notify:601838   up_percent_1 Stock Notify:601838   up_percent_1
+ERROR :  ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 142-042-613
+ * Detected change in '/home/rabbitlbj/workfolder/stock-monitor/job.py', reloading
+do job
+ERROR :  'StockCompareItem' object has no attribute 'name'
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 142-042-613
+ * Detected change in '/home/rabbitlbj/workfolder/stock-monitor/job.py', reloading
+do job
+ERROR :  'StockCompareItem' object has no attribute 'name'
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 142-042-613
