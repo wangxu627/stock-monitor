@@ -12,7 +12,10 @@ from notification_tools import send_notification
 
 def notify(title, content):
     print("Send notification : ", title, content)
-    send_notification(title, content)
+    try:
+        send_notification(title, content)
+    except Exception as e:
+        print(str(e))
 
 def up_down_percent_n(current_info, compare_data, diff_percent):
     if diff_percent > 0:
@@ -51,10 +54,10 @@ condition_trigger_record = defaultdict(dict)
 
 stock_compare_data = [
     StockCompareItem("600673", 13.130, None, 10000), # 东阳光
-    StockCompareItem("002823", 12.770, None, 10000), # 凯中精密
-    StockCompareItem("601838", 13.250, None, 10000), # 成都银行
+    StockCompareItem("002823", 12.770, None, 0), # 凯中精密
+    StockCompareItem("601838", 13.250, None, 0), # 成都银行
     StockCompareItem("600036", 28.566, None, 10000), # 招商银行
-    StockCompareItem("601233", 15.160, None, 10000), # 桐昆股份
+    StockCompareItem("601233", 15.160, None, 0), # 桐昆股份
     StockCompareItem("512170", 0.456, None, 0), # 医疗ETF
     StockCompareItem("512880", 0.899, None, 0), # 证券ETF
     StockCompareItem("510300", 3.921, None,10000) # 沪深ETF
@@ -174,7 +177,7 @@ def get_diff_info(include_all=False):
 
         collected_info.append(OrderedDict({
             "code": data.code,
-            "name": data.name,
+            "name": info.name,
             "percent": diff_percent_str,
             "up_down": ('🔺' if diff_price_today > 0 else '🔻'),
             "today_percent": diff_percent_str_today,
@@ -191,17 +194,28 @@ def send_running_mail():
         return
     notify("Monitor is running", "Monitor is running")
 
+def report_stat():
+    if not is_workday(datetime.date.today()):
+        return
+    info = get_diff_info()
+    content = ""
+    for i in info:
+        content += f'{i["name"]}:{i["today_percent"]};' 
+    notify("Report", content)
+
 def conclude_stat():
     if not is_workday(datetime.date.today()):
         return
     info = get_diff_info()
-    notify("Conclude", json.dumps(info))
-
+    notify("Conclude", json.dumps(info,ensure_ascii=False))
 
 
 def run():
     try:
         schedule.every(10).seconds.do(job)
+        for hour in range(9, 15):  # 从9点到15点
+            schedule.every().day.at(f"{hour:02d}:00").do(report_stat)
+            schedule.every().day.at(f"{hour:02d}:30").do(report_stat)
         schedule.every().day.at("09:25").do(send_running_mail)
         schedule.every().day.at("09:30").do(clear_trigger_condition)
         schedule.every().day.at("15:00").do(conclude_stat)
